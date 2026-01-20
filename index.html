@@ -3,231 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>境內基金下單代號查詢</title>
+    <title>財經工具 - 下單代號查詢</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        body { background-color: #f4f7f6; font-size: 16px; color: #333; }
-        .container { max-width: 600px; margin-top: 20px; padding-bottom: 50px; }
-        .card { border: none; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .sticky-filter { position: sticky; top: 10px; z-index: 100; background: white; }
-        #fundList { max-height: 250px; overflow-y: auto; background: #fff; border: 1px solid #dee2e6; border-radius: 8px; }
-        .table-result { background: white; border-radius: 12px; overflow: hidden; }
-        .form-check-label { font-size: 0.95rem; }
-        .fund-name-cell { font-size: 0.9rem; line-height: 1.4; }
-        .code-cell { font-family: 'Courier New', monospace; font-weight: bold; color: #d63384; }
+        body { background-color: #f0f2f5; font-size: 14px; padding-bottom: 30px; }
+        .nav-tabs { background: white; border-radius: 10px 10px 0 0; }
+        .tab-content { background: white; padding: 15px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .fund-list-box { max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px; }
+        .table-capture { background: white !important; }
+        .screenshot-btn { width: 100%; margin-top: 10px; font-weight: bold; }
+        .badge-currency { font-size: 0.7rem; margin-left: 5px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h4 class="text-center fw-bold mb-4">境內基金下單代號查詢</h4>
+<div class="container py-3">
+    <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" id="on-tab" data-bs-toggle="tab" data-bs-target="#on-panel" type="button">境內基金查詢</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="off-tab" data-bs-toggle="tab" data-bs-target="#off-panel" type="button">歐義銳榮查詢</button>
+        </li>
+    </ul>
 
-    <div class="card p-3 mb-3">
-        <label class="form-label fw-bold text-primary">1. 選擇銷售機構</label>
-        <select id="bankSelect" class="form-select form-select-lg mb-2">
-            <option value="">-- 請選擇 (如：台新、陽信) --</option>
-        </select>
-    </div>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="on-panel">
+            <h5 class="fw-bold text-primary mb-3">境內基金下單代號查詢</h5>
+            <select id="bankOn" class="form-select mb-3"><option value="">-- 選擇銷售機構 --</option></select>
+            
+            <div class="d-flex justify-content-between mb-3 px-1">
+                <div class="form-check"><input class="form-check-input on-filter" type="checkbox" value="後收" id="onPost"><label class="form-check-label">後收</label></div>
+                <div class="form-check"><input class="form-check-input on-filter" type="checkbox" value="配息" id="onDiv"><label class="form-check-label">配息</label></div>
+                <div class="form-check"><input class="form-check-input on-filter" type="checkbox" value="人民幣" id="onRMB"><label class="form-check-label">人民幣</label></div>
+            </div>
 
-    <div class="card p-3 mb-3">
-        <label class="form-label fw-bold text-primary">2. 條件篩選</label>
-        <div class="d-flex justify-content-between px-1">
-            <div class="form-check">
-                <input class="form-check-input filter-attr" type="checkbox" value="後收" id="attrPost">
-                <label class="form-check-label" for="attrPost">後收</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input filter-attr" type="checkbox" value="配息" id="attrDiv">
-                <label class="form-check-label" for="attrDiv">配息(月/季)</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input filter-attr" type="checkbox" value="人民幣" id="attrRMB">
-                <label class="form-check-label" for="attrRMB">人民幣</label>
+            <div id="listOn" class="fund-list-box mb-3">請先選擇機構...</div>
+            <div id="areaOn" style="display:none;">
+                <div id="captureOn">
+                    <h6 class="p-2 bg-dark text-white rounded-top mb-0" id="titleOn"></h6>
+                    <table class="table table-bordered table-sm table-capture">
+                        <thead class="table-light"><tr><th>主要基金</th><th class="text-center">代號</th></tr></thead>
+                        <tbody id="bodyOn"></tbody>
+                    </table>
+                </div>
+                <button class="btn btn-success screenshot-btn" onclick="takeScreenshot('captureOn', '境內基金')">📸 點我截圖拍照</button>
             </div>
         </div>
-    </div>
 
-    <div class="card p-3 mb-3">
-        <label class="form-label fw-bold text-primary">3. 勾選主要基金</label>
-        <div id="fundList" class="p-2">
-            <div class="text-muted text-center py-3">請先選擇上方機構</div>
-        </div>
-    </div>
+        <div class="tab-pane fade" id="off-panel">
+            <h5 class="fw-bold text-danger mb-3">歐義銳榮下單代號查詢</h5>
+            <select id="bankOff" class="form-select mb-3"><option value="">-- 選擇銷售機構 --</option></select>
 
-    <div id="resultArea" style="display:none;">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 id="resultTitle" class="mb-0 fw-bold">查詢結果</h5>
-            <span class="badge bg-secondary" id="countBadge">0 筆</span>
-        </div>
-        <div class="table-result shadow-sm">
-            <table class="table table-striped align-middle mb-0">
-                <thead class="table-dark">
-                    <tr>
-                        <th style="width: 65%;">基金名稱</th>
-                        <th class="text-center">代號</th>
-                    </tr>
-                </thead>
-                <tbody id="resultBody">
-                </tbody>
-            </table>
+            <div class="row g-2 mb-3">
+                <div class="col-4"><div class="form-check"><input class="form-check-input off-filter" type="checkbox" value="USD" id="offUSD"><label class="form-check-label">美元</label></div></div>
+                <div class="col-4"><div class="form-check"><input class="form-check-input off-filter" type="checkbox" value="USD_H" id="offUSDH"><label class="form-check-label">美元避險</label></div></div>
+                <div class="col-4"><div class="form-check"><input class="form-check-input off-filter" type="checkbox" value="EUR" id="offEUR"><label class="form-check-label">歐元</label></div></div>
+                <div class="col-4"><div class="form-check"><input class="form-check-input off-filter" type="checkbox" value="EUR_H" id="offEURH"><label class="form-check-label">歐元避險</label></div></div>
+                <div class="col-4"><div class="form-check"><input class="form-check-input off-filter" type="checkbox" value="AUD" id="offAUD"><label class="form-check-label">澳幣</label></div></div>
+                <div class="col-4"><div class="form-check"><input class="form-check-input off-filter" type="checkbox" value="DIV" id="offDIV"><label class="form-check-label">配息(月)</label></div></div>
+            </div>
+
+            <div id="listOff" class="fund-list-box mb-3">請先選擇機構...</div>
+            <div id="areaOff" style="display:none;">
+                <div id="captureOff">
+                    <h6 class="p-2 bg-danger text-white rounded-top mb-0" id="titleOff"></h6>
+                    <table class="table table-bordered table-sm table-capture">
+                        <thead class="table-light"><tr><th>主要基金</th><th class="text-center">代號</th></tr></thead>
+                        <tbody id="bodyOff"></tbody>
+                    </table>
+                </div>
+                <button class="btn btn-danger screenshot-btn" onclick="takeScreenshot('captureOff', '歐義銳榮')">📸 點我截圖拍照</button>
+            </div>
         </div>
     </div>
 </div>
 
-<script>
-    let rawData = [];
-    let bankColumns = [];
-    const metaCols = ['主要基金', '幣別', '級別', '配息'];
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+<script>
+    let dataOn = [], dataOff = [];
+    let colsOn = [], colsOff = [];
+
+    // 初始化讀取
     window.onload = function() {
-        Papa.parse("on.csv", {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
-            complete: function(results) {
-                rawData = results.data;
-                // 取得 CSV 標題中除了前四欄以外的所有銀行名稱
-                if (results.meta && results.meta.fields) {
-                    bankColumns = results.meta.fields.filter(f => !metaCols.includes(f));
-                    initBankDropdown();
-                }
-            }
-        });
+        Papa.parse("on.csv", { download: true, header: true, complete: res => { 
+            dataOn = res.data; 
+            colsOn = res.meta.fields.filter(f => !['主要基金','幣別','級別','配息'].includes(f));
+            colsOn.forEach(b => document.getElementById('bankOn').add(new Option(b, b)));
+        }});
+        Papa.parse("off1.csv", { download: true, header: true, complete: res => { 
+            dataOff = res.data; 
+            colsOff = res.meta.fields.filter(f => f !== '主要基金');
+            colsOff.forEach(b => document.getElementById('bankOff').add(new Option(b, b)));
+        }});
     };
 
-    function initBankDropdown() {
-        const select = document.getElementById('bankSelect');
-        bankColumns.forEach(bank => {
-            let opt = document.createElement('option');
-            opt.value = bank;
-            opt.innerHTML = bank;
-            select.appendChild(opt);
-        });
-    }
+    // --- 邏輯處理區 ---
+    document.getElementById('bankOn').onchange = () => renderList('on');
+    document.getElementById('bankOff').onchange = () => renderList('off');
+    document.querySelectorAll('.on-filter, .off-filter').forEach(el => el.onchange = () => {
+        const mode = el.classList.contains('on-filter') ? 'on' : 'off';
+        renderList(mode);
+    });
 
-    document.getElementById('bankSelect').addEventListener('change', refreshUI);
-    document.querySelectorAll('.filter-attr').forEach(el => el.addEventListener('change', refreshUI));
+    function renderList(mode) {
+        const bank = document.getElementById(mode === 'on' ? 'bankOn' : 'bankOff').value;
+        const listDiv = document.getElementById(mode === 'on' ? 'listOn' : 'listOff');
+        if (!bank) return;
 
-    function refreshUI() {
-        const bank = document.getElementById('bankSelect').value;
-        const fundListDiv = document.getElementById('fundList');
-        
-        if (!bank) {
-            fundListDiv.innerHTML = '<div class="text-muted text-center py-3">請先選擇上方機構</div>';
-            document.getElementById('resultArea').style.display = 'none';
-            return;
-        }
-
-        // 1. 先過濾出該銀行有代號的資料 (排除 x, X, 空白)
-        let filtered = rawData.filter(row => {
+        let raw = mode === 'on' ? dataOn : dataOff;
+        let filtered = raw.filter(row => {
             const code = String(row[bank] || "").trim().toLowerCase();
-            const hasCode = code !== '' && code !== 'x';
-            
-            // 進階篩選
-            const isPost = document.getElementById('attrPost').checked;
-            const isDiv = document.getElementById('attrDiv').checked;
-            const isRMB = document.getElementById('attrRMB').checked;
+            if (code === '' || code === 'x') return false;
 
-            let match = true;
-            if (isPost && !(row['級別'] || "").includes("後收")) match = false;
-            if (isDiv && !(["月配", "季配"].some(s => (row['配息'] || "").includes(s)))) match = false;
-            if (isRMB && !(row['幣別'] || "").includes("人民幣")) match = false;
+            if (mode === 'on') {
+                const isPost = document.getElementById('onPost').checked;
+                const isDiv = document.getElementById('onDiv').checked;
+                const isRMB = document.getElementById('onRMB').checked;
+                if (isPost && !(row['級別'] || "").includes("後收")) return false;
+                if (isDiv && !(["月配", "季配"].some(s => (row['配息'] || "").includes(s)))) return false;
+                if (isRMB && !(row['幣別'] || "").includes("人民幣")) return false;
+            } else {
+                const name = row['主要基金'] || "";
+                const fUSD = document.getElementById('offUSD').checked;
+                const fUSDH = document.getElementById('offUSDH').checked;
+                const fEUR = document.getElementById('offEUR').checked;
+                const fEURH = document.getElementById('offEURH').checked;
+                const fAUD = document.getElementById('offAUD').checked;
+                const fDIV = document.getElementById('offDIV').checked;
 
-            return hasCode && match;
-        });
+                // 歐義銳榮後綴判定邏輯 (Regex)
+                const isUSD = /\s(R2|RM2)$/.test(name);
+                const isUSDH = /\s(RH2|RU2)$/.test(name);
+                const isEUR = /\s(R|RM)$/.test(name);
+                const isEURH = /\s(RH)$/.test(name);
+                const isAUD = /\s(R4|RM4)$/.test(name);
+                const isMonthly = /\s(RM2|RM|RM4)$/.test(name);
 
-        // 2. 產出整合後的基金名稱選單
-        const uniqueFundNames = [...new Set(filtered.map(r => r['主要基金']))].sort();
-        fundListDiv.innerHTML = '';
-        
-        // 全部選項
-        fundListDiv.appendChild(createCheckbox("ALL", "【 全部顯示 】", true));
-        
-        uniqueFundNames.forEach(name => {
-            fundListDiv.appendChild(createCheckbox(name, name, false));
-        });
-
-        updateResultTable(filtered);
-    }
-
-    function createCheckbox(value, label, isAll) {
-        const div = document.createElement('div');
-        div.className = 'form-check py-1 border-bottom';
-        div.innerHTML = `
-            <input class="form-check-input fund-checkbox" type="checkbox" value="${value}" id="fund_${value}" ${isAll ? 'checked' : ''}>
-            <label class="form-check-label w-100" for="fund_${value}">${label}</label>
-        `;
-        div.querySelector('input').addEventListener('change', (e) => {
-            // 如果點了全部，取消其他；如果點了其他，取消全部
-            if (value === 'ALL' && e.target.checked) {
-                document.querySelectorAll('.fund-checkbox').forEach(cb => { if(cb.value !== 'ALL') cb.checked = false; });
-            } else if (e.target.checked) {
-                document.getElementById('fund_ALL').checked = false;
+                if (fUSD && !isUSD) return false;
+                if (fUSDH && !isUSDH) return false;
+                if (fEUR && !isEUR) return false;
+                if (fEURH && !isEURH) return false;
+                if (fAUD && !isAUD) return false;
+                if (fDIV && !isMonthly) return false;
             }
-            applySelectionFilter();
+            return true;
         });
-        return div;
+
+        const names = [...new Set(filtered.map(r => r['主要基金']))].sort();
+        listDiv.innerHTML = `<div class="form-check"><input class="form-check-input chk-all" type="checkbox" value="ALL" id="${mode}_all" checked><label class="form-check-label">【 全部 】</label></div>`;
+        names.forEach(n => {
+            listDiv.innerHTML += `<div class="form-check"><input class="form-check-input chk-item-${mode}" type="checkbox" value="${n}"><label class="form-check-label">${n}</label></div>`;
+        });
+
+        // 綁定勾選連動
+        listDiv.querySelectorAll('input').forEach(el => el.onclick = () => updateTable(mode, filtered));
+        updateTable(mode, filtered);
     }
 
-    function applySelectionFilter() {
-        const bank = document.getElementById('bankSelect').value;
-        const checkedBoxes = Array.from(document.querySelectorAll('.fund-checkbox:checked')).map(cb => cb.value);
+    function updateTable(mode, data) {
+        const checkedBoxes = Array.from(document.querySelectorAll(`.chk-item-${mode}:checked`)).map(cb => cb.value);
+        const isAll = document.getElementById(`${mode}_all`).checked;
+        const bank = document.getElementById(mode === 'on' ? 'bankOn' : 'bankOff').value;
         
-        let filtered = rawData.filter(row => {
-            const code = String(row[bank] || "").trim().toLowerCase();
-            return code !== '' && code !== 'x';
-        });
-
-        // 二次過濾屬性
-        const isPost = document.getElementById('attrPost').checked;
-        const isDiv = document.getElementById('attrDiv').checked;
-        const isRMB = document.getElementById('attrRMB').checked;
-
-        filtered = filtered.filter(row => {
-            let m = true;
-            if (isPost && !(row['級別'] || "").includes("後收")) m = false;
-            if (isDiv && !(["月配", "季配"].some(s => (row['配息'] || "").includes(s)))) m = false;
-            if (isRMB && !(row['幣別'] || "").includes("人民幣")) m = false;
-            return m;
-        });
-
-        if (checkedBoxes.includes('ALL') || checkedBoxes.length === 0) {
-            updateResultTable(filtered);
-        } else {
-            const final = filtered.filter(row => checkedBoxes.includes(row['主要基金']));
-            updateResultTable(final);
-        }
-    }
-
-    function updateResultTable(data) {
-        const area = document.getElementById('resultArea');
-        const body = document.getElementById('resultBody');
-        const bank = document.getElementById('bankSelect').value;
+        let final = (isAll || checkedBoxes.length === 0) ? data : data.filter(r => checkedBoxes.includes(r['主要基金']));
         
-        if (data.length === 0) {
-            area.style.display = 'none';
-            return;
-        }
-
-        document.getElementById('resultTitle').innerText = `${bank} 銷售代碼`;
-        document.getElementById('countBadge').innerText = `${data.length} 筆`;
+        document.getElementById(`area${mode.charAt(0).toUpperCase() + mode.slice(1)}`).style.display = final.length ? 'block' : 'none';
+        document.getElementById(`title${mode.charAt(0).toUpperCase() + mode.slice(1)}`).innerText = `${bank} 銷售代碼`;
+        
+        const body = document.getElementById(`body${mode.charAt(0).toUpperCase() + mode.slice(1)}`);
         body.innerHTML = '';
-
-        data.forEach(row => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="fund-name-cell">
-                    <div class="fw-bold">${row['主要基金']}</div>
-                    <small class="text-muted">${row['幣別']} | ${row['級別']} | ${row['配息']}</small>
-                </td>
-                <td class="text-center code-cell">${row[bank]}</td>
-            `;
-            body.appendChild(tr);
+        final.forEach(row => {
+            body.innerHTML += `<tr><td>${row['主要基金']}</td><td class="text-center fw-bold text-danger">${row[bank]}</td></tr>`;
         });
-        area.style.display = 'block';
+    }
+
+    // --- 截圖拍照功能 (自動分頁處理) ---
+    async function takeScreenshot(elementId, fileName) {
+        const element = document.getElementById(elementId);
+        const rows = element.querySelectorAll('tbody tr');
+        const chunkSize = 20; // 每 20 筆截一張圖，避免手機記憶體崩潰
+        
+        if (rows.length <= chunkSize) {
+            const canvas = await html2canvas(element, { useCORS: true, scale: 2 });
+            downloadCanvas(canvas, `${fileName}.png`);
+        } else {
+            alert(`資料較多（共 ${rows.length} 筆），將自動分成多張圖片下載。`);
+            for (let i = 0; i < rows.length; i += chunkSize) {
+                // 暫時隱藏不相關的列來實現分頁截圖
+                rows.forEach((row, idx) => {
+                    row.style.display = (idx >= i && idx < i + chunkSize) ? '' : 'none';
+                });
+                const canvas = await html2canvas(element, { useCORS: true, scale: 2 });
+                downloadCanvas(canvas, `${fileName}_第${Math.floor(i/chunkSize)+1}頁.png`);
+            }
+            // 恢復顯示
+            rows.forEach(row => row.style.display = '');
+        }
+    }
+
+    function downloadCanvas(canvas, name) {
+        const link = document.createElement('a');
+        link.download = name;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
     }
 </script>
-
 </body>
 </html>
