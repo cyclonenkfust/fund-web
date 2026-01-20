@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>境內基金下單代號查詢</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        body { background-color: #f8f9fa; font-size: 16px; }
+        .container { max-width: 600px; margin-top: 20px; }
+        .filter-group { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .fund-item { border-bottom: 1px solid #eee; padding: 10px 0; }
+        .table-responsive { background: white; border-radius: 10px; overflow: hidden; }
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+        .badge-custom { font-size: 0.8rem; margin-right: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h3 class="text-center mb-4">境內基金下單代號查詢</h3>
+
+    <div class="filter-group mb-3">
+        <label class="form-label fw-bold">1. 選擇銷售機構</label>
+        <select id="bankSelect" class="form-select mb-3">
+            <option value="">-- 請選擇機構 --</option>
+        </select>
+
+        <label class="form-label fw-bold">2. 條件篩選</label>
+        <div class="checkbox-group mb-3">
+            <div class="form-check">
+                <input class="form-check-input filter-type" type="checkbox" value="後收" id="typePost">
+                <label class="form-check-label" for="typePost">後收</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input filter-type" type="checkbox" value="配息" id="typeDiv">
+                <label class="form-check-label" for="typeDiv">配息 (月/季)</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input filter-type" type="checkbox" value="人民幣" id="typeRMB">
+                <label class="form-check-label" for="typeRMB">人民幣</label>
+            </div>
+        </div>
+
+        <label class="form-label fw-bold">3. 選擇主要基金 (可複選)</label>
+        <div id="fundList" class="border p-2 rounded" style="max-height: 200px; overflow-y: auto;">
+            <div class="text-muted">請先選擇機構...</div>
+        </div>
+    </div>
+
+    <div id="resultArea" class="mt-4 shadow-sm" style="display:none;">
+        <h5 id="resultTitle" class="p-2 bg-primary text-white rounded-top mb-0">查詢結果</h5>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 70%;">主要基金</th>
+                        <th>下單代號</th>
+                    </tr>
+                </thead>
+                <tbody id="resultBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    let rawData = [];
+
+    // 載入 CSV
+    window.onload = function() {
+        Papa.parse("on.csv", {
+            download: true,
+            header: true,
+            complete: function(results) {
+                rawData = results.data.filter(row => row.銷售機構);
+                initBankDropdown();
+            }
+        });
+    };
+
+    // 初始化機構選單
+    function initBankDropdown() {
+        const banks = [...new Set(rawData.map(item => item.銷售機構))];
+        const bankSelect = document.getElementById('bankSelect');
+        banks.forEach(bank => {
+            let opt = document.createElement('option');
+            opt.value = bank;
+            opt.innerHTML = bank;
+            bankSelect.appendChild(opt);
+        });
+    }
+
+    // 當機構或篩選條件改變時
+    document.getElementById('bankSelect').addEventListener('change', updateFundList);
+    document.querySelectorAll('.filter-type').forEach(el => el.addEventListener('change', updateFundList));
+
+    function updateFundList() {
+        const selectedBank = document.getElementById('bankSelect').value;
+        const fundListDiv = document.getElementById('fundList');
+        const selectedTypes = Array.from(document.querySelectorAll('.filter-type:checked')).map(cb => cb.value);
+
+        if (!selectedBank) {
+            fundListDiv.innerHTML = '<div class="text-muted">請先選擇機構...</div>';
+            return;
+        }
+
+        // 過濾邏輯：1. 機構匹配 2. 代號非空白且非x 3. 符合額外篩選(後收/配息/人民幣)
+        let filtered = rawData.filter(item => {
+            const hasCode = item.下單代號 && item.下單代號.toLowerCase() !== 'x' && item.下單代號.trim() !== '';
+            const matchBank = item.銷售機構 === selectedBank;
+            
+            // 檢查類型關鍵字 (假設在名稱或類型欄位中)
+            const fundContent = item.主要基金 + (item.類型 || "");
+            const matchType = selectedTypes.every(t => {
+                if (t === '配息') return fundContent.includes('月配') || fundContent.includes('季配') || fundContent.includes('配息');
+                return fundContent.includes(t);
+            });
+
+            return matchBank && hasCode && matchType;
+        });
+
+        // 整合同一檔基金 (以名稱群組)
+        const uniqueFunds = [...new Set(filtered.map(item => item.主要基金))];
+
+        fundListDiv.innerHTML = '';
+        
+        // 加入 "全部" 選項
+        const allDiv = createCheckbox('ALL_FUNDS', '【 全部基金 】', true);
+        fundListDiv.appendChild(allDiv);
+
+        uniqueFunds.forEach(fundName => {
+            const div = createCheckbox(fundName, fundName, false);
+            fundListDiv.appendChild(div);
+        });
+
+        renderTable(filtered); // 預設顯示全部
+    }
+
+    function createCheckbox(value, label, isAll) {
+        const div = document.createElement('div');
+        div.className = 'form-check';
+        div.innerHTML = `
+            <input class="form-check-input fund-checkbox" type="checkbox" value="${value}" id="chk_${value}" ${isAll ? 'checked' : ''}>
+            <label class="form-check-label" for="chk_${value}">${label}</label>
+        `;
+        div.querySelector('input').addEventListener('change', handleFundSelection);
+        return div;
+    }
+
+    function handleFundSelection(e) {
+        const selectedBank = document.getElementById('bankSelect').value;
+        const checkboxes = document.querySelectorAll('.fund-checkbox:checked');
+        let selectedFundNames = Array.from(checkboxes).map(cb => cb.value);
+
+        let filtered = rawData.filter(item => item.銷售機構 === selectedBank && item.下單代號 && item.下單代號.toLowerCase() !== 'x');
+
+        // 如果選了"全部"或沒選，顯示該機構所有
+        if (selectedFundNames.includes('ALL_FUNDS')) {
+            renderTable(filtered);
+        } else {
+            const finalDisplay = filtered.filter(item => selectedFundNames.includes(item.主要基金));
+            renderTable(finalDisplay);
+        }
+    }
+
+    function renderTable(data) {
+        const resultArea = document.getElementById('resultArea');
+        const resultBody = document.getElementById('resultBody');
+        const bankName = document.getElementById('bankSelect').value;
+
+        if (data.length === 0) {
+            resultArea.style.display = 'none';
+            return;
+        }
+
+        document.getElementById('resultTitle').innerText = `${bankName} 銷售代碼`;
+        resultBody.innerHTML = '';
+        data.forEach(item => {
+            const row = `<tr>
+                <td class="small">${item.主要基金}</td>
+                <td class="fw-bold text-danger">${item.下單代號}</td>
+            </tr>`;
+            resultBody.insertAdjacentHTML('beforeend', row);
+        });
+        resultArea.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
