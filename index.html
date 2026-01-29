@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>專業財經工具箱 - 大字版</title>
+    <title>專業財經工具箱 - 標準版</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -14,73 +14,70 @@
             --text-main: #2c3e50;
             --border-color: #dbe4eb;
         }
-        /* 全域放大：基準字體改為 18px */
+        /* 回歸標準字體大小 14px */
         body { 
             background-color: #f0f4f7; 
             color: var(--text-main); 
-            font-size: 18px; 
-            padding-bottom: 60px; 
-            font-family: "Microsoft JhengHei", sans-serif; 
+            font-size: 14px; 
+            padding-bottom: 40px; 
+            font-family: "Microsoft JhengHei", "PingFang TC", sans-serif; 
         }
         
-        .container { max-width: 800px; }
+        .container { max-width: 600px; }
 
-        /* 導覽列放大 */
-        .nav-tabs { border-bottom: 4px solid var(--primary-blue); background: white; }
-        .nav-tabs .nav-link { border: none; color: #7f8c8d; font-weight: bold; padding: 15px; font-size: 1.1rem; }
-        .nav-tabs .nav-link.active { background: var(--primary-blue) !important; color: white !important; border-radius: 10px 10px 0 0; }
+        /* 標籤頁 */
+        .nav-tabs { border-bottom: 3px solid var(--primary-blue); background: white; }
+        .nav-tabs .nav-link { border: none; color: #7f8c8d; font-weight: bold; padding: 12px; }
+        .nav-tabs .nav-link.active { background: var(--primary-blue) !important; color: white !important; border-radius: 8px 8px 0 0; }
         
-        .tab-content { background: white; padding: 25px; border-radius: 0 0 15px 15px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
-        .section-header { background: var(--accent-blue); color: var(--primary-blue); font-weight: bold; padding: 12px 20px; border-radius: 10px; margin-bottom: 20px; border-left: 6px solid var(--primary-blue); }
+        .tab-content { background: white; padding: 20px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .section-header { background: var(--accent-blue); color: var(--primary-blue); font-weight: bold; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid var(--primary-blue); }
         
-        /* 列表盒高度調整 */
-        .list-container { max-height: 250px; overflow-y: auto; border: 2px solid var(--border-color); padding: 15px; border-radius: 12px; background: #fff; margin-bottom: 20px; }
+        /* 選單盒 */
+        .list-container { max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; background: #fff; margin-bottom: 15px; }
         
-        .form-check { margin-bottom: 10px; }
-        .form-check-label { cursor: pointer; }
-
-        /* 表格字體放大 */
+        /* 表格設定 */
         .table-custom { width: 100%; border-collapse: collapse; background: white; }
-        .table-custom thead th { background: var(--primary-blue); color: white; padding: 15px 10px; font-size: 1rem; }
-        .table-custom tbody td { padding: 15px 10px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        .table-custom thead th { background: var(--primary-blue); color: white; padding: 10px 8px; font-weight: 500; font-size: 0.95rem; }
+        .table-custom tbody td { padding: 10px 8px; border-bottom: 1px solid #eee; vertical-align: middle; }
         
-        /* 境內基金細節文字 */
-        .fund-sub-info { font-size: 0.9rem; color: #6c757d; margin-top: 5px; font-weight: normal; }
+        .fund-sub-info { font-size: 0.75rem; color: #7f8c8d; margin-top: 3px; font-weight: normal; }
         
-        /* 下單代號：特大紅色字體 */
-        .code-highlight { font-weight: 900; color: #d63031; font-family: 'Consolas', monospace; font-size: 1.4rem; }
+        /* 下單代號：亮點字體調整 */
+        .code-highlight { font-weight: bold; color: #d63031; font-family: 'Consolas', monospace; font-size: 1.1rem; }
         
-        /* 按鈕放大 */
-        .btn-shot { background: var(--primary-blue); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 1.1rem; width: 100%; transition: 0.2s; box-shadow: 0 4px 10px rgba(26, 95, 122, 0.2); }
-        .btn-shot:hover { background: #144a5f; color: white; transform: scale(1.02); }
+        /* 按鈕樣式 */
+        .btn-shot { background: var(--primary-blue); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; width: 100%; transition: 0.2s; }
+        .btn-shot:hover { background: #144a5f; color: white; opacity: 0.9; }
 
-        .form-select-lg { font-size: 1.1rem; padding: 12px; border: 2px solid var(--border-color); }
+        .form-select { border: 1px solid var(--border-color); }
+        .form-check { margin-bottom: 5px; }
     </style>
 </head>
 <body>
 
-<div class="container py-4">
-    <h3 class="text-center fw-bold mb-4" style="color: var(--primary-blue); letter-spacing: 2px;">理財顧問專業查詢工具</h3>
+<div class="container py-3">
+    <h5 class="text-center fw-bold mb-3" style="color: var(--primary-blue);">理財專業查詢工具</h5>
 
     <ul class="nav nav-tabs nav-fill" id="myTab" role="tablist">
         <li class="nav-item"><button class="nav-link active" id="on-tab" data-bs-toggle="tab" data-bs-target="#on-pane">境內基金</button></li>
-        <li class="nav-item"><button class="nav-link" id="off-tab" data-bs-toggle="tab" data-bs-target="#off-pane">歐義銳榮</button></li>
+        <li class="nav-item"><button class="nav-link" id="off-tab" data-bs-toggle="tab" data-bs-target="#off-panel">歐義銳榮</button></li>
         <li class="nav-item"><button class="nav-link" id="tax-tab" data-bs-toggle="tab" data-bs-target="#tax-pane">稅務分析</button></li>
     </ul>
 
-    <div class="tab-content">
+    <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="on-pane">
-            <div class="section-header">🔍 境內基金查詢</div>
-            <select id="bankOn" class="form-select form-select-lg mb-4"><option value="">-- 請選擇銷售機構 --</option></select>
-            <div class="d-flex justify-content-between mb-4 px-2">
-                <div class="form-check"><input class="form-check-input on-filter" type="checkbox" id="onPost"><label class="form-check-label fw-bold">後收</label></div>
-                <div class="form-check"><input class="form-check-input on-filter" type="checkbox" id="onDiv"><label class="form-check-label fw-bold">配息</label></div>
-                <div class="form-check"><input class="form-check-input on-filter" type="checkbox" id="onRMB"><label class="form-check-label fw-bold">人民幣</label></div>
+            <div class="section-header">境內基金代號查詢</div>
+            <select id="bankOn" class="form-select mb-3"><option value="">-- 選擇銷售機構 --</option></select>
+            <div class="d-flex justify-content-between mb-3 px-1">
+                <div class="form-check"><input class="form-check-input on-filter" type="checkbox" id="onPost"><label class="form-check-label">後收</label></div>
+                <div class="form-check"><input class="form-check-input on-filter" type="checkbox" id="onDiv"><label class="form-check-label">配息</label></div>
+                <div class="form-check"><input class="form-check-input on-filter" type="checkbox" id="onRMB"><label class="form-check-label">人民幣</label></div>
             </div>
             <div id="listOn" class="list-container">請先選擇機構...</div>
             <div id="areaOn" style="display:none;">
-                <div id="captureOn" style="background: white; padding: 20px;">
-                    <h4 class="text-center fw-bold mb-3 p-2 rounded" id="titleOn" style="color: var(--primary-blue); background: var(--accent-blue);"></h4>
+                <div id="captureOn" style="background: white; padding: 10px;">
+                    <h6 class="text-center fw-bold mb-2 p-2 rounded" id="titleOn" style="color: var(--primary-blue); background: var(--accent-blue);"></h6>
                     <table class="table-custom">
                         <thead><tr><th>基金明細</th><th class="text-center">代號</th></tr></thead>
                         <tbody id="bodyOn"></tbody>
@@ -91,39 +88,39 @@
         </div>
 
         <div class="tab-pane fade" id="off-pane">
-            <div class="section-header">🔍 歐義銳榮查詢</div>
-            <select id="bankOff" class="form-select form-select-lg mb-4"><option value="">-- 請選擇銷售機構 --</option></select>
-            <div class="row g-2 mb-4 px-2">
-                <div class="col-4"><div class="form-check"><input class="form-check-input off-filter" type="checkbox" id="offUSD"><label class="form-check-label fw-bold">美元</label></div></div>
-                <div class="col-4"><div class="form-check"><input class="form-check-input off-filter" type="checkbox" id="offUSDH"><label class="form-check-label fw-bold">美避</label></div></div>
-                <div class="col-4"><div class="form-check"><input class="form-check-input off-filter" type="checkbox" id="offDIV"><label class="form-check-label fw-bold">配息</label></div></div>
-                <div class="col-4"><div class="form-check"><input class="form-check-input off-filter" type="checkbox" id="offEUR"><label class="form-check-label fw-bold">歐元</label></div></div>
-                <div class="col-4"><div class="form-check"><input class="form-check-input off-filter" type="checkbox" id="offEURH"><label class="form-check-label fw-bold">歐避</label></div></div>
-                <div class="col-4"><div class="form-check"><input class="form-check-input off-filter" type="checkbox" id="offAUD"><label class="form-check-label fw-bold">澳幣</label></div></div>
+            <div class="section-header">歐義銳榮代號查詢</div>
+            <select id="bankOff" class="form-select mb-3"><option value="">-- 選擇銷售機構 --</option></select>
+            <div class="row g-1 mb-3 px-1">
+                <div class="col-4"><div class="form-check"><input class="form-check-input off-filter" type="checkbox" id="offUSD"><label class="form-check-label">美元</label></div></div>
+                <div class="col-4"><div class="form-check"><input class="form-check-input off-filter" type="checkbox" id="offUSDH"><label class="form-check-label">美避</label></div></div>
+                <div class="col-4"><div class="form-check"><input class="form-check-input off-filter" type="checkbox" id="offDIV"><label class="form-check-label">配息</label></div></div>
+                <div class="col-4"><div class="form-check"><input class="form-check-input off-filter" type="checkbox" id="offEUR"><label class="form-check-label">歐元</label></div></div>
+                <div class="col-4"><div class="form-check"><input class="form-check-input off-filter" type="checkbox" id="offEURH"><label class="form-check-label">歐避</label></div></div>
+                <div class="col-4"><div class="form-check"><input class="form-check-input off-filter" type="checkbox" id="offAUD"><label class="form-check-label">澳幣</label></div></div>
             </div>
             <div id="listOff" class="list-container">請先選擇機構...</div>
             <div id="areaOff" style="display:none;">
-                <div id="captureOff" style="background: white; padding: 20px;">
-                    <h4 class="text-center fw-bold mb-3 p-2 rounded" id="titleOff" style="color: var(--primary-blue); background: #fee;"></h4>
+                <div id="captureOff" style="background: white; padding: 10px;">
+                    <h6 class="text-center fw-bold mb-2 p-2 rounded" id="titleOff" style="color: var(--primary-blue); background: var(--accent-blue);"></h6>
                     <table class="table-custom">
                         <thead><tr><th>主要基金名稱</th><th class="text-center">代號</th></tr></thead>
                         <tbody id="bodyOff"></tbody>
                     </table>
                 </div>
-                <button class="btn btn-shot mt-3" style="background:#c0392b" onclick="takeScreenshot('captureOff', '歐義銳榮', 10)">📸 拍照截圖 (10筆/頁)</button>
+                <button class="btn btn-shot mt-3" onclick="takeScreenshot('captureOff', '歐義銳榮', 10)">📸 拍照截圖 (10筆/頁)</button>
             </div>
         </div>
 
         <div class="tab-pane fade" id="tax-pane">
-            <div class="section-header">⚖️ 投資工具稅務面面觀</div>
+            <div class="section-header">投資工具稅務面面觀</div>
             <div id="listTax" class="list-container">載入中...</div>
             <div id="areaTax" style="display:none;">
-                <div id="captureTax" style="background: white; padding: 20px;">
-                    <h4 class="text-center fw-bold py-3 mb-4" style="color: white; background: var(--primary-blue); border-radius: 8px;">稅務處理概覽表</h4>
+                <div id="captureTax" style="background: white; padding: 10px;">
+                    <h6 class="text-center fw-bold py-2 mb-3" style="color: white; background: var(--primary-blue); border-radius: 5px;">稅務處理概覽表</h6>
                     <table class="table-custom">
                         <thead>
                             <tr>
-                                <th style="width:30%">投資工具</th>
+                                <th style="width:30%">工具類型</th>
                                 <th style="width:25%">自然人</th>
                                 <th style="width:25%">法人</th>
                                 <th>備註</th>
@@ -157,10 +154,10 @@
         Papa.parse("tax.csv", { download: true, header: true, skipEmptyLines: true, complete: res => { 
             dataTax = res.data; 
             initTaxList();
-        }, error: () => { document.getElementById('listTax').innerText = "找不到 tax.csv，請確認檔案已上傳。"; }});
+        }, error: () => { document.getElementById('listTax').innerText = "找不到 tax.csv"; }});
     };
 
-    // --- 1. 境內基金 ---
+    // --- 境內基金 ---
     document.getElementById('bankOn').onchange = () => renderOnList();
     document.querySelectorAll('.on-filter').forEach(el => el.onchange = () => renderOnList());
 
@@ -168,7 +165,6 @@
         const bank = document.getElementById('bankOn').value;
         const listDiv = document.getElementById('listOn');
         if (!bank) return;
-
         let filtered = dataOn.filter(row => {
             const code = String(row[bank] || "").trim().toUpperCase();
             if (code === '' || code === 'X') return false;
@@ -177,13 +173,11 @@
             if (document.getElementById('onRMB').checked && !(row['幣別'] || "").includes("人民幣")) return false;
             return true;
         });
-
         const names = [...new Set(filtered.map(r => r['主要基金']))].sort();
         listDiv.innerHTML = `<div class="form-check"><input class="form-check-input" type="checkbox" id="on_all" checked><label class="form-check-label fw-bold">全部顯示</label></div>`;
         names.forEach((n, idx) => {
             listDiv.innerHTML += `<div class="form-check"><input class="form-check-input chk-on" type="checkbox" value="${n}" id="on_${idx}"><label class="form-check-label" for="on_${idx}">${n}</label></div>`;
         });
-
         const allCheck = document.getElementById('on_all');
         const itemChecks = document.querySelectorAll('.chk-on');
         allCheck.onclick = () => { if (allCheck.checked) itemChecks.forEach(c => c.checked = false); updateOnTable(filtered); };
@@ -195,9 +189,8 @@
         const checked = Array.from(document.querySelectorAll('.chk-on:checked')).map(cb => cb.value);
         const bank = document.getElementById('bankOn').value;
         let final = (document.getElementById('on_all').checked || checked.length === 0) ? data : data.filter(r => checked.includes(r['主要基金']));
-        
         document.getElementById('areaOn').style.display = final.length ? 'block' : 'none';
-        document.getElementById('titleOn').innerText = `${bank} 銷售代碼清單`;
+        document.getElementById('titleOn').innerText = `${bank} 銷售代碼`;
         const body = document.getElementById('bodyOn');
         body.innerHTML = '';
         final.forEach(row => {
@@ -205,7 +198,7 @@
         });
     }
 
-    // --- 2. 歐義銳榮 ---
+    // --- 歐義銳榮 ---
     document.getElementById('bankOff').onchange = () => renderOffList();
     document.querySelectorAll('.off-filter').forEach(el => el.onchange = () => renderOffList());
 
@@ -213,7 +206,6 @@
         const bank = document.getElementById('bankOff').value;
         const listDiv = document.getElementById('listOff');
         if (!bank) return;
-
         let filtered = dataOff.filter(row => {
             const code = String(row[bank] || "").trim().toUpperCase();
             if (code === '' || code === 'X') return false;
@@ -226,13 +218,11 @@
             if (document.getElementById('offDIV').checked && !/(RM|RM2|RM4|RMU2)$/.test(name)) return false;
             return true;
         });
-
         const names = [...new Set(filtered.map(r => r['主要基金']))].sort();
         listDiv.innerHTML = `<div class="form-check"><input class="form-check-input" type="checkbox" id="off_all" checked><label class="form-check-label fw-bold">全部顯示</label></div>`;
         names.forEach((n, idx) => {
             listDiv.innerHTML += `<div class="form-check"><input class="form-check-input chk-off" type="checkbox" value="${n}" id="off_${idx}"><label class="form-check-label" for="off_${idx}">${n}</label></div>`;
         });
-
         const allCheck = document.getElementById('off_all');
         const itemChecks = document.querySelectorAll('.chk-off');
         allCheck.onclick = () => { if (allCheck.checked) itemChecks.forEach(c => c.checked = false); updateOffTable(filtered); };
@@ -244,9 +234,8 @@
         const checked = Array.from(document.querySelectorAll('.chk-off:checked')).map(cb => cb.value);
         const bank = document.getElementById('bankOff').value;
         let final = (document.getElementById('off_all').checked || checked.length === 0) ? data : data.filter(r => checked.includes(r['主要基金']));
-        
         document.getElementById('areaOff').style.display = final.length ? 'block' : 'none';
-        document.getElementById('titleOff').innerText = `${bank} 銷售代碼清單`;
+        document.getElementById('titleOff').innerText = `${bank} 銷售代碼`;
         const body = document.getElementById('bodyOff');
         body.innerHTML = '';
         final.forEach(row => {
@@ -254,12 +243,10 @@
         });
     }
 
-    // --- 3. 稅務分析 ---
+    // --- 稅務分析 ---
     function initTaxList() {
         const listDiv = document.getElementById('listTax');
         const types = [...new Set(dataTax.map(r => r['投資工具類型']))].filter(t => t);
-        if(types.length === 0) { listDiv.innerHTML = "CSV 資料格式不正確，找不到類型。"; return; }
-        
         listDiv.innerHTML = `<div class="form-check mb-2"><input class="form-check-input" type="checkbox" id="tax_all" checked><label class="form-check-label fw-bold">全部顯示</label></div>`;
         types.forEach((t, i) => {
             listDiv.innerHTML += `<div class="form-check"><input class="form-check-input chk-tax" type="checkbox" value="${t}" id="tax_${i}"><label class="form-check-label" for="tax_${i}">${t}</label></div>`;
@@ -282,7 +269,6 @@
         });
     }
 
-    // --- 截圖拍照 ---
     async function takeScreenshot(elId, name, pageSize) {
         const el = document.getElementById(elId);
         const rows = Array.from(el.querySelectorAll('tbody tr'));
@@ -290,19 +276,18 @@
             const canvas = await html2canvas(el, { scale: 2, backgroundColor: "#ffffff" });
             download(canvas.toDataURL(), `${name}.png`);
         } else {
-            alert(`共 ${rows.length} 筆，將自動分 ${Math.ceil(rows.length/pageSize)} 頁下載。`);
+            alert(`共 ${rows.length} 筆，將分 ${Math.ceil(rows.length/pageSize)} 頁下載。`);
             for (let i = 0; i < rows.length; i += pageSize) {
                 rows.forEach((r, idx) => r.style.display = (idx >= i && idx < i + pageSize) ? '' : 'none');
                 const canvas = await html2canvas(el, { scale: 2, backgroundColor: "#ffffff" });
-                download(canvas.toDataURL(), `${name}_第${Math.floor(i/pageSize)+1}頁.png`);
+                download(canvas.toDataURL(), `${name}_Part${Math.floor(i/pageSize)+1}.png`);
             }
             rows.forEach(r => r.style.display = '');
         }
     }
 
     function download(uri, n) {
-        const a = document.createElement('a');
-        a.download = n; a.href = uri; a.click();
+        const a = document.createElement('a'); a.download = n; a.href = uri; a.click();
     }
 </script>
 </body>
