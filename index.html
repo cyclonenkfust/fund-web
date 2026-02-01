@@ -3,54 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>專業財經工具箱 - 標準版</title>
+    <title>專業財經工具箱 - 穩定修復版</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        :root {
-            --primary-blue: #1a5f7a;
-            --accent-blue: #eef5f9;
-            --text-main: #2c3e50;
-            --border-color: #dbe4eb;
-        }
-        /* 回歸標準字體大小 14px */
-        body { 
-            background-color: #f0f4f7; 
-            color: var(--text-main); 
-            font-size: 14px; 
-            padding-bottom: 40px; 
-            font-family: "Microsoft JhengHei", "PingFang TC", sans-serif; 
-        }
-        
+        :root { --primary-blue: #1a5f7a; --accent-blue: #eef5f9; --text-main: #2c3e50; }
+        body { background-color: #f0f4f7; color: var(--text-main); font-size: 14px; padding-bottom: 40px; font-family: "Microsoft JhengHei", sans-serif; }
         .container { max-width: 600px; }
-
-        /* 標籤頁 */
         .nav-tabs { border-bottom: 3px solid var(--primary-blue); background: white; }
         .nav-tabs .nav-link { border: none; color: #7f8c8d; font-weight: bold; padding: 12px; }
         .nav-tabs .nav-link.active { background: var(--primary-blue) !important; color: white !important; border-radius: 8px 8px 0 0; }
-        
         .tab-content { background: white; padding: 20px; border-radius: 0 0 12px 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .section-header { background: var(--accent-blue); color: var(--primary-blue); font-weight: bold; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid var(--primary-blue); }
-        
-        /* 選單盒 */
-        .list-container { max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; background: #fff; margin-bottom: 15px; }
-        
-        /* 表格設定 */
+        .list-container { max-height: 200px; overflow-y: auto; border: 1px solid #dbe4eb; padding: 10px; border-radius: 8px; background: #fff; margin-bottom: 15px; }
         .table-custom { width: 100%; border-collapse: collapse; background: white; }
-        .table-custom thead th { background: var(--primary-blue); color: white; padding: 10px 8px; font-weight: 500; font-size: 0.95rem; }
+        .table-custom thead th { background: var(--primary-blue); color: white; padding: 10px 8px; font-weight: 500; }
         .table-custom tbody td { padding: 10px 8px; border-bottom: 1px solid #eee; vertical-align: middle; }
-        
-        .fund-sub-info { font-size: 0.75rem; color: #7f8c8d; margin-top: 3px; font-weight: normal; }
-        
-        /* 下單代號：亮點字體調整 */
+        .fund-sub-info { font-size: 0.75rem; color: #7f8c8d; margin-top: 3px; }
         .code-highlight { font-weight: bold; color: #d63031; font-family: 'Consolas', monospace; font-size: 1.1rem; }
-        
-        /* 按鈕樣式 */
-        .btn-shot { background: var(--primary-blue); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; width: 100%; transition: 0.2s; }
-        .btn-shot:hover { background: #144a5f; color: white; opacity: 0.9; }
-
-        .form-select { border: 1px solid var(--border-color); }
+        .btn-shot { background: var(--primary-blue); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; width: 100%; }
         .form-check { margin-bottom: 5px; }
     </style>
 </head>
@@ -87,7 +59,7 @@
             </div>
         </div>
 
-        <div class="tab-pane fade" id="off-pane">
+        <div class="tab-pane fade" id="off-panel">
             <div class="section-header">歐義銳榮代號查詢</div>
             <select id="bankOff" class="form-select mb-3"><option value="">-- 選擇銷售機構 --</option></select>
             <div class="row g-1 mb-3 px-1">
@@ -119,12 +91,7 @@
                     <h6 class="text-center fw-bold py-2 mb-3" style="color: white; background: var(--primary-blue); border-radius: 5px;">稅務處理概覽表</h6>
                     <table class="table-custom">
                         <thead>
-                            <tr>
-                                <th style="width:30%">工具類型</th>
-                                <th style="width:25%">自然人</th>
-                                <th style="width:25%">法人</th>
-                                <th>備註</th>
-                            </tr>
+                            <tr><th style="width:30%">工具類型</th><th style="width:25%">自然人</th><th style="width:25%">法人</th><th>備註</th></tr>
                         </thead>
                         <tbody id="bodyTax"></tbody>
                     </table>
@@ -140,89 +107,95 @@
 <script>
     let dataOn = [], dataOff = [], dataTax = [];
 
+    // 通用 CSV 讀取功能
+    function loadCSV(file, callback, errorMsg) {
+        Papa.parse(file, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            transformHeader: h => h.trim(), // 自動清除標題空格
+            complete: res => {
+                if (res.data.length === 0) console.warn(file + " 資料為空");
+                callback(res);
+            },
+            error: err => { alert(errorMsg); console.error(err); }
+        });
+    }
+
     window.onload = function() {
-        Papa.parse("on.csv", { download: true, header: true, skipEmptyLines: true, complete: res => { 
-            dataOn = res.data; 
-            const cols = res.meta.fields.filter(f => !['主要基金','幣別','級別','配息'].includes(f));
-            cols.forEach(b => { if(b) document.getElementById('bankOn').add(new Option(b, b)) });
-        }});
-        Papa.parse("off1.csv", { download: true, header: true, skipEmptyLines: true, complete: res => { 
-            dataOff = res.data; 
-            const cols = res.meta.fields.filter(f => f !== '主要基金');
-            cols.forEach(b => { if(b) document.getElementById('bankOff').add(new Option(b, b)) });
-        }});
-        Papa.parse("tax.csv", { download: true, header: true, skipEmptyLines: true, complete: res => { 
-            dataTax = res.data; 
+        loadCSV("on.csv", res => {
+            dataOn = res.data;
+            res.meta.fields.filter(f => !['主要基金','幣別','級別','配息'].includes(f) && f).forEach(b => {
+                document.getElementById('bankOn').add(new Option(b, b));
+            });
+        }, "無法讀取 on.csv");
+
+        loadCSV("off1.csv", res => {
+            dataOff = res.data;
+            // 過濾掉名為「主要基金」的欄位，其餘皆為銀行
+            const bankCols = res.meta.fields.filter(f => f && f !== '主要基金');
+            if (bankCols.length === 0) alert("歐義銳榮 CSV 格式錯誤：找不到銀行欄位");
+            bankCols.forEach(b => {
+                document.getElementById('bankOff').add(new Option(b, b));
+            });
+        }, "無法讀取 off1.csv，請確認 GitHub 上是否有此檔案");
+
+        loadCSV("tax.csv", res => {
+            dataTax = res.data;
             initTaxList();
-        }, error: () => { document.getElementById('listTax').innerText = "找不到 tax.csv"; }});
+        }, "無法讀取 tax.csv");
     };
 
-    // --- 境內基金 ---
-    document.getElementById('bankOn').onchange = () => renderOnList();
-    document.querySelectorAll('.on-filter').forEach(el => el.onchange = () => renderOnList());
-
-    function renderOnList() {
-        const bank = document.getElementById('bankOn').value;
-        const listDiv = document.getElementById('listOn');
-        if (!bank) return;
-        let filtered = dataOn.filter(row => {
-            const code = String(row[bank] || "").trim().toUpperCase();
-            if (code === '' || code === 'X') return false;
-            if (document.getElementById('onPost').checked && !(row['級別'] || "").includes("後收")) return false;
-            if (document.getElementById('onDiv').checked && !(["月配", "季配", "配息"].some(s => (row['配息'] || "").includes(s)))) return false;
-            if (document.getElementById('onRMB').checked && !(row['幣別'] || "").includes("人民幣")) return false;
-            return true;
-        });
-        const names = [...new Set(filtered.map(r => r['主要基金']))].sort();
-        listDiv.innerHTML = `<div class="form-check"><input class="form-check-input" type="checkbox" id="on_all" checked><label class="form-check-label fw-bold">全部顯示</label></div>`;
-        names.forEach((n, idx) => {
-            listDiv.innerHTML += `<div class="form-check"><input class="form-check-input chk-on" type="checkbox" value="${n}" id="on_${idx}"><label class="form-check-label" for="on_${idx}">${n}</label></div>`;
-        });
-        const allCheck = document.getElementById('on_all');
-        const itemChecks = document.querySelectorAll('.chk-on');
-        allCheck.onclick = () => { if (allCheck.checked) itemChecks.forEach(c => c.checked = false); updateOnTable(filtered); };
-        itemChecks.forEach(c => c.onclick = () => { if (c.checked) allCheck.checked = false; updateOnTable(filtered); });
-        updateOnTable(filtered);
-    }
-
-    function updateOnTable(data) {
-        const checked = Array.from(document.querySelectorAll('.chk-on:checked')).map(cb => cb.value);
-        const bank = document.getElementById('bankOn').value;
-        let final = (document.getElementById('on_all').checked || checked.length === 0) ? data : data.filter(r => checked.includes(r['主要基金']));
-        document.getElementById('areaOn').style.display = final.length ? 'block' : 'none';
-        document.getElementById('titleOn').innerText = `${bank} 銷售代碼`;
-        const body = document.getElementById('bodyOn');
-        body.innerHTML = '';
-        final.forEach(row => {
-            body.innerHTML += `<tr><td><div class="fw-bold">${row['主要基金']}</div><div class="fund-sub-info">${row['幣別']} | ${row['級別']} | ${row['配息']}</div></td><td class="text-center code-highlight">${row[bank]}</td></tr>`;
-        });
-    }
-
-    // --- 歐義銳榮 ---
-    document.getElementById('bankOff').onchange = () => renderOffList();
-    document.querySelectorAll('.off-filter').forEach(el => el.onchange = () => renderOffList());
+    // --- 歐義銳榮渲染邏輯 ---
+    document.getElementById('bankOff').onchange = renderOffList;
+    document.querySelectorAll('.off-filter').forEach(el => el.onchange = renderOffList);
 
     function renderOffList() {
         const bank = document.getElementById('bankOff').value;
         const listDiv = document.getElementById('listOff');
         if (!bank) return;
+
         let filtered = dataOff.filter(row => {
             const code = String(row[bank] || "").trim().toUpperCase();
             if (code === '' || code === 'X') return false;
+            
             const name = (row['主要基金'] || "").trim();
-            if (document.getElementById('offUSD').checked && !/(R2|RM2)$/.test(name)) return false;
-            if (document.getElementById('offUSDH').checked && !/(RH2|RU2|RMU2)$/.test(name)) return false;
-            if (document.getElementById('offEUR').checked && !/(R|RM)$/.test(name)) return false;
-            if (document.getElementById('offEURH').checked && !/(RH)$/.test(name)) return false;
-            if (document.getElementById('offAUD').checked && !/(R4|RM4)$/.test(name)) return false;
-            if (document.getElementById('offDIV').checked && !/(RM|RM2|RM4|RMU2)$/.test(name)) return false;
-            return true;
+            if (!name) return false;
+
+            // 篩選按鈕狀態
+            const fUSD = document.getElementById('offUSD').checked;
+            const fUSDH = document.getElementById('offUSDH').checked;
+            const fDIV = document.getElementById('offDIV').checked;
+            const fEUR = document.getElementById('offEUR').checked;
+            const fEURH = document.getElementById('offEURH').checked;
+            const fAUD = document.getElementById('offAUD').checked;
+
+            // 如果都沒勾，預設顯示所有有代碼的
+            if (!fUSD && !fUSDH && !fDIV && !fEUR && !fEURH && !fAUD) return true;
+
+            // 判定邏輯
+            if (fUSD && /(R2|RM2)$/.test(name)) return true;
+            if (fUSDH && /(RH2|RU2|RMU2)$/.test(name)) return true;
+            if (fEUR && /(R|RM)$/.test(name) && !/(R2|RM2|R4|RM4)$/.test(name)) return true;
+            if (fEURH && /(RH)$/.test(name) && !/(RH2)$/.test(name)) return true;
+            if (fAUD && /(R4|RM4)$/.test(name)) return true;
+            if (fDIV && /(RM|RM2|RM4|RMU2)$/.test(name)) return true;
+
+            return false;
         });
+
         const names = [...new Set(filtered.map(r => r['主要基金']))].sort();
+        if (names.length === 0) {
+            listDiv.innerHTML = "<div class='text-muted p-2'>此機構在此篩選條件下無資料</div>";
+            document.getElementById('areaOff').style.display = 'none';
+            return;
+        }
+
         listDiv.innerHTML = `<div class="form-check"><input class="form-check-input" type="checkbox" id="off_all" checked><label class="form-check-label fw-bold">全部顯示</label></div>`;
         names.forEach((n, idx) => {
             listDiv.innerHTML += `<div class="form-check"><input class="form-check-input chk-off" type="checkbox" value="${n}" id="off_${idx}"><label class="form-check-label" for="off_${idx}">${n}</label></div>`;
         });
+
         const allCheck = document.getElementById('off_all');
         const itemChecks = document.querySelectorAll('.chk-off');
         allCheck.onclick = () => { if (allCheck.checked) itemChecks.forEach(c => c.checked = false); updateOffTable(filtered); };
@@ -234,6 +207,7 @@
         const checked = Array.from(document.querySelectorAll('.chk-off:checked')).map(cb => cb.value);
         const bank = document.getElementById('bankOff').value;
         let final = (document.getElementById('off_all').checked || checked.length === 0) ? data : data.filter(r => checked.includes(r['主要基金']));
+        
         document.getElementById('areaOff').style.display = final.length ? 'block' : 'none';
         document.getElementById('titleOff').innerText = `${bank} 銷售代碼`;
         const body = document.getElementById('bodyOff');
@@ -243,30 +217,54 @@
         });
     }
 
-    // --- 稅務分析 ---
-    function initTaxList() {
-        const listDiv = document.getElementById('listTax');
-        const types = [...new Set(dataTax.map(r => r['投資工具類型']))].filter(t => t);
-        listDiv.innerHTML = `<div class="form-check mb-2"><input class="form-check-input" type="checkbox" id="tax_all" checked><label class="form-check-label fw-bold">全部顯示</label></div>`;
-        types.forEach((t, i) => {
-            listDiv.innerHTML += `<div class="form-check"><input class="form-check-input chk-tax" type="checkbox" value="${t}" id="tax_${i}"><label class="form-check-label" for="tax_${i}">${t}</label></div>`;
+    // --- 其餘邏輯保持不變 (境內, 稅務) ---
+    document.getElementById('bankOn').onchange = renderOnList;
+    document.querySelectorAll('.on-filter').forEach(el => el.onchange = renderOnList);
+    function renderOnList() {
+        const bank = document.getElementById('bankOn').value;
+        if (!bank) return;
+        let filtered = dataOn.filter(row => {
+            const code = String(row[bank] || "").trim().toUpperCase();
+            if (code === '' || code === 'X') return false;
+            if (document.getElementById('onPost').checked && !(row['級別'] || "").includes("後收")) return false;
+            if (document.getElementById('onDiv').checked && !(["月配", "季配", "配息"].some(s => (row['配息'] || "").includes(s)))) return false;
+            if (document.getElementById('onRMB').checked && !(row['幣別'] || "").includes("人民幣")) return false;
+            return true;
         });
-        const allCheck = document.getElementById('tax_all');
-        const items = document.querySelectorAll('.chk-tax');
+        const names = [...new Set(filtered.map(r => r['主要基金']))].sort();
+        const listDiv = document.getElementById('listOn');
+        listDiv.innerHTML = `<div class="form-check"><input class="form-check-input" type="checkbox" id="on_all" checked><label class="form-check-label fw-bold">全部顯示</label></div>`;
+        names.forEach((n, idx) => { listDiv.innerHTML += `<div class="form-check"><input class="form-check-input chk-on" type="checkbox" value="${n}" id="on_${idx}"><label class="form-check-label" for="on_${idx}">${n}</label></div>`; });
+        const allCheck = document.getElementById('on_all'), itemChecks = document.querySelectorAll('.chk-on');
+        allCheck.onclick = () => { if (allCheck.checked) itemChecks.forEach(c => c.checked = false); updateOnTable(filtered); };
+        itemChecks.forEach(c => c.onclick = () => { if (c.checked) allCheck.checked = false; updateOnTable(filtered); });
+        updateOnTable(filtered);
+    }
+    function updateOnTable(data) {
+        const checked = Array.from(document.querySelectorAll('.chk-on:checked')).map(cb => cb.value), bank = document.getElementById('bankOn').value;
+        let final = (document.getElementById('on_all').checked || checked.length === 0) ? data : data.filter(r => checked.includes(r['主要基金']));
+        document.getElementById('areaOn').style.display = final.length ? 'block' : 'none';
+        document.getElementById('titleOn').innerText = `${bank} 銷售代碼`;
+        const body = document.getElementById('bodyOn'); body.innerHTML = '';
+        final.forEach(row => { body.innerHTML += `<tr><td><div class="fw-bold">${row['主要基金']}</div><div class="fund-sub-info">${row['幣別']} | ${row['級別']} | ${row['配息']}</div></td><td class="text-center code-highlight">${row[bank]}</td></tr>`; });
+    }
+
+    function initTaxList() {
+        const types = [...new Set(dataTax.map(r => r['投資工具類型']))].filter(t => t);
+        const listDiv = document.getElementById('listTax');
+        listDiv.innerHTML = `<div class="form-check mb-2"><input class="form-check-input" type="checkbox" id="tax_all" checked><label class="form-check-label fw-bold">全部顯示</label></div>`;
+        types.forEach((t, i) => { listDiv.innerHTML += `<div class="form-check"><input class="form-check-input chk-tax" type="checkbox" value="${t}" id="tax_${i}"><label class="form-check-label" for="tax_${i}">${t}</label></div>`; });
+        const allCheck = document.getElementById('tax_all'), items = document.querySelectorAll('.chk-tax');
         allCheck.onclick = () => { if (allCheck.checked) items.forEach(c => c.checked = false); updateTaxTable(); };
         items.forEach(c => c.onclick = () => { if (c.checked) allCheck.checked = false; updateTaxTable(); });
         updateTaxTable();
     }
-
     function updateTaxTable() {
         const checked = Array.from(document.querySelectorAll('.chk-tax:checked')).map(c => c.value);
         let final = (document.getElementById('tax_all').checked || checked.length === 0) ? dataTax : dataTax.filter(r => checked.includes(r['投資工具類型']));
         document.getElementById('areaTax').style.display = final.length ? 'block' : 'none';
-        const body = document.getElementById('bodyTax');
-        body.innerHTML = '';
-        final.forEach(row => {
-            body.innerHTML += `<tr><td class="fw-bold text-primary">${row['投資工具類型']}</td><td class="small">${row['自然人']||''}</td><td class="small">${row['法人']||''}</td><td class="small text-muted">${row['備註']||''}</td></tr>`;
-        });
+        const body = document.getElementById('bodyTax'); body.innerHTML = '';
+        final.forEach(row => { body.innerHTML += `<tr><td class="fw-bold text-primary">${row['投資工具類型']}</td><td class="small">${row['自然人']||''}</td><td class="small">${row['法人']||''}</td><td class="small text-muted">${row['備註']||''}</td></tr>`; });
     }
 
     async function takeScreenshot(elId, name, pageSize) {
@@ -276,7 +274,7 @@
             const canvas = await html2canvas(el, { scale: 2, backgroundColor: "#ffffff" });
             download(canvas.toDataURL(), `${name}.png`);
         } else {
-            alert(`共 ${rows.length} 筆，將分 ${Math.ceil(rows.length/pageSize)} 頁下載。`);
+            alert(`共 ${rows.length} 筆，將自動分 ${Math.ceil(rows.length/pageSize)} 頁下載。`);
             for (let i = 0; i < rows.length; i += pageSize) {
                 rows.forEach((r, idx) => r.style.display = (idx >= i && idx < i + pageSize) ? '' : 'none');
                 const canvas = await html2canvas(el, { scale: 2, backgroundColor: "#ffffff" });
@@ -285,10 +283,7 @@
             rows.forEach(r => r.style.display = '');
         }
     }
-
-    function download(uri, n) {
-        const a = document.createElement('a'); a.download = n; a.href = uri; a.click();
-    }
+    function download(uri, n) { const a = document.createElement('a'); a.download = n; a.href = uri; a.click(); }
 </script>
 </body>
 </html>
