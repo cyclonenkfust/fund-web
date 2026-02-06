@@ -288,4 +288,39 @@
     // --- 稅務分析 ---
     function initTaxList() {
         const types = [...new Set(dataTax.map(r => r['投資工具類型']))].filter(t => t);
-        const listDiv = document.
+        const listDiv = document.getElementById('listTax');
+        listDiv.innerHTML = `<div class="form-check mb-2"><input class="form-check-input" type="checkbox" id="tax_all" checked><label class="form-check-label fw-bold">全部顯示</label></div>`;
+        types.forEach((t, i) => { listDiv.innerHTML += `<div class="form-check"><input class="form-check-input chk-tax" type="checkbox" value="${t}" id="tax_${i}"><label class="form-check-label" for="tax_${i}">${t}</label></div>`; });
+        const allCheck = document.getElementById('tax_all'), items = document.querySelectorAll('.chk-tax');
+        allCheck.onclick = () => { if (allCheck.checked) items.forEach(c => c.checked = false); updateTaxTable(); };
+        items.forEach(c => c.onclick = () => { if (c.checked) allCheck.checked = false; updateTaxTable(); });
+        updateTaxTable();
+    }
+    function updateTaxTable() {
+        const checked = Array.from(document.querySelectorAll('.chk-tax:checked')).map(c => c.value);
+        let final = (document.getElementById('tax_all').checked || checked.length === 0) ? dataTax : dataTax.filter(r => checked.includes(r['投資工具類型']));
+        document.getElementById('areaTax').style.display = final.length ? 'block' : 'none';
+        const body = document.getElementById('bodyTax'); body.innerHTML = '';
+        final.forEach(row => { body.innerHTML += `<tr><td class="fw-bold text-primary">${row['投資工具類型']}</td><td>${row['自然人']||''}</td><td>${row['法人']||''}</td><td>${row['備註']||''}</td></tr>`; });
+    }
+
+    async function takeScreenshot(elId, name, pageSize) {
+        const el = document.getElementById(elId);
+        const rows = Array.from(el.querySelectorAll('tbody tr'));
+        if (rows.length <= pageSize) {
+            const canvas = await html2canvas(el, { scale: 2, backgroundColor: "#ffffff" });
+            download(canvas.toDataURL(), `${name}.png`);
+        } else {
+            alert(`共 ${rows.length} 筆，分頁下載中...`);
+            for (let i = 0; i < rows.length; i += pageSize) {
+                rows.forEach((r, idx) => r.style.display = (idx >= i && idx < i + pageSize) ? '' : 'none');
+                const canvas = await html2canvas(el, { scale: 2, backgroundColor: "#ffffff" });
+                download(canvas.toDataURL(), `${name}_Part${Math.floor(i/pageSize)+1}頁.png`);
+            }
+            rows.forEach(r => r.style.display = '');
+        }
+    }
+    function download(uri, n) { const a = document.createElement('a'); a.download = n; a.href = uri; a.click(); }
+</script>
+</body>
+</html>
